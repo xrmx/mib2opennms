@@ -57,7 +57,7 @@ void dumpOid(SmiNode* node, FILE* file)
 
 	if (generic6) {
 		fprintf(file, "\t\t\t<mevalue>6</mevalue>\n");
-		node->oid[j++];
+		j++;
 	} else {
 		fprintf(file, "\t\t\t<mevalue>%d</mevalue>\n", node->oid[j++]);
 	}
