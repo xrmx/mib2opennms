@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 	SmiModule *smiModule;
 	SmiModule ** modules;
 
-	FILE *file = stdout;
+	FILE *file;
 
 
 	fprintf(stderr, "mib2opennms version %s\n", VERSION);
@@ -236,7 +236,16 @@ int main(int argc, char *argv[])
 
 	if (optind == argc)
 		usage();
-    
+   
+	file = stdout; 
+	if (filename != NULL) {
+		file = fopen(filename, "w");
+		if (file == NULL) {
+			perror("Could not open file for writing");
+			exit(1);
+		}
+	}
+
 	smiInit(NULL);
 
 	pathlen = strlen(STANDARD_PATH);
@@ -285,14 +294,6 @@ int main(int argc, char *argv[])
 			verbose(3, "MIB loaded: %s\n", modulename);
 		}
 	}      
-
-	if (filename != NULL) {
-		file = fopen(filename, "w");
-		if (file == NULL) {
-			perror("Could not open file for writing");
-			goto out2;
-		}
-	}
 
 	defaults = (EventDefaults*) malloc(sizeof(struct EventDefaults));
 	if (!defaults) {
