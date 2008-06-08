@@ -194,24 +194,22 @@ void usage()
 
 int main(int argc, char *argv[])
 {
-	int i;
-	int c;
-	int moduleCount = 0;
+	int i, c, moduleCount;
 
 	char* modulename;
 	char* filename = NULL;
 
 	char* STANDARD_PATH = ".:/usr/share/snmp/mibs";
 	char* mibpath = NULL;
-	int pathlen = 0;
+	int pathlen;
 	char * newpath;
 
 	FILE* file = stdout;
 
 	SmiModule* smiModule;
-	SmiModule** modules = NULL;
+	SmiModule** modules;
 
-	EventDefaults* defaults = NULL;
+	EventDefaults* defaults;
 
 	fprintf(stderr, "mib2opennms version %s\n", VERSION);
 
