@@ -42,8 +42,9 @@ int wrapevents = 0;
 
 void dumpOid(SmiNode* node, FILE* file)
 {
-	int j;
-	int len = node->oidlen - 2;
+	int j, len;
+
+	len = node->oidlen - 2;
 
 	fprintf(file, "\t\t<maskelement>\n");
 	fprintf(file, "\t\t\t<mename>id</mename>\n");
@@ -94,11 +95,10 @@ int dumpNamed(SmiNode *node, FILE *file)
 
 int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 {
-	SmiNode *smiNode;
-	SmiNode *tmpNode;
+	SmiNode *smiNode, *tmpNode;
 	SmiElement *smiElem;
-	int i;
 	char *logmsg;
+	int i;
 
 	smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_NOTIFICATION);
 
@@ -194,22 +194,21 @@ void usage()
 
 int main(int argc, char *argv[])
 {
-	int i, c, moduleCount;
+	char *STANDARD_PATH = ".:/usr/share/snmp/mibs";
+	char *filename = NULL;
+	char *mibpath = NULL;
+	char *modulename;
+	char *newpath;
 
-	char* modulename;
-	char* filename = NULL;
-
-	char* STANDARD_PATH = ".:/usr/share/snmp/mibs";
-	char* mibpath = NULL;
-	int pathlen;
-	char * newpath;
-
-	FILE* file = stdout;
-
-	SmiModule* smiModule;
-	SmiModule** modules;
+	int i, c, moduleCount, pathlen;
 
 	EventDefaults* defaults;
+
+	SmiModule *smiModule;
+	SmiModule ** modules;
+
+	FILE *file = stdout;
+
 
 	fprintf(stderr, "mib2opennms version %s\n", VERSION);
 
