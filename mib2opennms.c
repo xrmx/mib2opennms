@@ -238,7 +238,9 @@ int main(int argc, char *argv[])
     
 	smiInit(NULL);
 
-	pathlen = strlen(STANDARD_PATH) + (mibpath == NULL ? 0 : strlen(mibpath)+1 /* for the colon */);
+	pathlen = strlen(STANDARD_PATH);
+	/* Add enough space for null termination and colon */
+	pathlen += mibpath == NULL ? 1 : strlen(mibpath) + 2;
 
 	newpath = (char *) malloc( pathlen * sizeof(char) );
 	newpath[0] = '\0';
