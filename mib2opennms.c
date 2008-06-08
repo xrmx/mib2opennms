@@ -92,7 +92,7 @@ int dumpNamed(SmiNode* node, FILE *file) {
 	return output;
 }
 
-void dumpXml(SmiModule* smiModule, FILE* file, EventDefaults* defs) {
+int dumpXml(SmiModule* smiModule, FILE* file, EventDefaults* defs) {
 	SmiNode*    smiNode;
 	SmiNode*    tmpNode;
 	SmiElement* smiElem;
@@ -133,6 +133,10 @@ void dumpXml(SmiModule* smiModule, FILE* file, EventDefaults* defs) {
 		fprintf(file, "&lt;table&gt;");
 
 		logmsg = (char *) malloc( 2000 * sizeof (char));
+		if (!logmsg) {
+			perror("Cannot allocate memory");
+			return 0;
+		}
 		logmsg[0]='\0';
 		sprintf(logmsg, "\t\t<logmsg dest='logndisplay'>&lt;p&gt;\n\t\t\t%s trap received ", 
 			smiNode->name);
@@ -176,6 +180,8 @@ void dumpXml(SmiModule* smiModule, FILE* file, EventDefaults* defs) {
 	}
 	fprintf(file, "<!-- End of auto generated data from MIB: %s -->\n", 
 		smiModule->name);
+
+	return 1;
 }
 
 void usage() {
@@ -243,6 +249,10 @@ int main(int argc, char *argv[])
 	pathlen += mibpath == NULL ? 1 : strlen(mibpath) + 2;
 
 	newpath = (char *) malloc( pathlen * sizeof(char) );
+	if (!newpath) {
+		perror("Cannot allocate memory");
+		goto out;
+	}
 	newpath[0] = '\0';
 
 	if (mibpath != NULL) {
@@ -255,6 +265,10 @@ int main(int argc, char *argv[])
 	smiSetPath(newpath);
 
 	modules = (SmiModule **) malloc( argc * sizeof(SmiModule *));
+	if (!modules) {
+		perror("Cannot allocate memory");
+		goto out1;
+	}
 	moduleCount = 0;
 
 	while( optind < argc ) {
@@ -284,26 +298,38 @@ int main(int argc, char *argv[])
 		file = fopen(filename, "w");
 		if ( file == NULL ) {
 			perror("Could not open file for writing");
-			exit(1);
+			goto out2;
 		}
 	}
 
 	defaults = (EventDefaults*) malloc(sizeof(struct EventDefaults));
+	if (!defaults) {
+		perror("Cannot allocate memory");
+		goto out2;
+	}
 	defaults->ueiPrefix = "uei.opennms.org/mib2opennms/";
 	defaults->severity  = "Indeterminate";
 
 	for ( i = 0; i < moduleCount; i++ ) {
+		int dump_ret;
+
 		smiModule = modules[i];
 		verbose(3, "Dumping %s to file\n", smiModule->name);
-		dumpXml(smiModule, file, defaults);
-	}
-    
-	if ( filename != NULL ) {
-		fflush(file);
-		fclose(file);
+		dump_ret = dumpXml(smiModule, file, defaults);
+		if (!dump_ret)
+			break;
 	}
 
 	free(defaults);
+out2:
+	free(modules);
+out1:
+	free(newpath);
+out:
+	if ( file != NULL || file != stdout ) {
+		fflush(file);
+		fclose(file);
+	}
 	smiExit();
 
 	exit(0);
