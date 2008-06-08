@@ -326,10 +326,9 @@ out2:
 out1:
 	free(newpath);
 out:
-	if ( file != NULL || file != stdout ) {
-		fflush(file);
+	if ( file != NULL || file != stdout )
 		fclose(file);
-	}
+
 	smiExit();
 
 	exit(0);
