@@ -28,8 +28,8 @@
 #include "config.h"
 
 typedef struct EventDefaults {
-	char* ueiPrefix;
-	char* severity;
+	char *ueiPrefix;
+	char *severity;
 } EventDefaults;
 
 int verbosity = 0;
@@ -202,10 +202,10 @@ int main(int argc, char *argv[])
 
 	int i, c, moduleCount, pathlen;
 
-	EventDefaults* defaults;
+	EventDefaults *defaults;
 
 	SmiModule *smiModule;
-	SmiModule ** modules;
+	SmiModule **modules;
 
 	FILE *file;
 
@@ -214,22 +214,22 @@ int main(int argc, char *argv[])
 
 	while ((c = getopt(argc, argv, "m:f:v6w")) != -1 ) {
 		switch (c) {
-		case 'm' :
+		case 'm':
 			mibpath = optarg;
 			break;
-		case 'f' :
+		case 'f':
 			filename = optarg;
 			break;
-		case 'v' :
+		case 'v':
 			verbosity++;
 			break;
-		case '6' :
+		case '6':
 			generic6++;
 			break;
-		case 'w' :
+		case 'w':
 			wrapevents++;
 			break;
-		default :
+		default:
 			usage();
 		}
 	}
