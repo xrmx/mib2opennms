@@ -40,16 +40,16 @@ int wrapevents = 0;
 	if( (level) <= verbosity ) { \
 		fprintf(stdout, __VA_ARGS__);}
 
-void dumpOid(SmiNode* node, FILE* file) {
+void dumpOid(SmiNode* node, FILE* file)
+{
 	int j;
 	int len = node->oidlen - 2;
 
 	fprintf(file, "\t\t<maskelement>\n");
 	fprintf(file, "\t\t\t<mename>id</mename>\n");
 	fprintf(file, "\t\t\t<mevalue>");
-	for ( j = 0; j < len; j++ ) {
+	for (j = 0; j < len; j++)
 		fprintf(file, ".%d", node->oid[j]);
-	}
 	fprintf(file, "</mevalue>\n");
 	fprintf(file, "\t\t</maskelement>\n");
 	fprintf(file, "\t\t<maskelement>\n");
@@ -58,9 +58,9 @@ void dumpOid(SmiNode* node, FILE* file) {
 	if (generic6) {
 		fprintf(file, "\t\t\t<mevalue>6</mevalue>\n");
 		node->oid[j++];
-	}
-	else
+	} else {
 		fprintf(file, "\t\t\t<mevalue>%d</mevalue>\n", node->oid[j++]);
+	}
 
 	fprintf(file, "\t\t</maskelement>\n");
 	fprintf(file, "\t\t<maskelement>\n");
@@ -69,17 +69,17 @@ void dumpOid(SmiNode* node, FILE* file) {
 	fprintf(file, "\t\t</maskelement>\n");
 }
 
-int dumpNamed(SmiNode* node, FILE *file) {
-	SmiNamedNumber*    smiNamedNumber;
-	SmiType*           smiType;
-	int	output = 0;
+int dumpNamed(SmiNode *node, FILE *file)
+{
+	SmiNamedNumber *smiNamedNumber;
+	SmiType *smiType;
+	int output = 0;
 
 	smiType = smiGetNodeType(node);
 
-	for ( smiNamedNumber = smiGetFirstNamedNumber(smiType);
-		smiNamedNumber;
-		smiNamedNumber = smiGetNextNamedNumber(smiNamedNumber) )
-	{
+	for (smiNamedNumber = smiGetFirstNamedNumber(smiType);
+	     smiNamedNumber;
+	     smiNamedNumber = smiGetNextNamedNumber(smiNamedNumber)) {
 		fprintf(file, "\n\t\t%s(%d)",
 			smiNamedNumber->name,
 			(int)smiNamedNumber->value.value.integer32);
@@ -92,22 +92,21 @@ int dumpNamed(SmiNode* node, FILE *file) {
 	return output;
 }
 
-int dumpXml(SmiModule* smiModule, FILE* file, EventDefaults* defs) {
-	SmiNode*    smiNode;
-	SmiNode*    tmpNode;
-	SmiElement* smiElem;
-	int         i;
-	char*       logmsg;
+int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
+{
+	SmiNode *smiNode;
+	SmiNode *tmpNode;
+	SmiElement *smiElem;
+	int i;
+	char *logmsg;
 
 	smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_NOTIFICATION);
 
 	fprintf(file, "<!-- Start of auto generated data from MIB: %s -->\n", smiModule->name);
-	if (wrapevents) {
+	if (wrapevents)
 		fprintf(file, "<events>\n");
-	}
 
-	for(; smiNode; smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_NOTIFICATION) ) 
-	{
+	for(; smiNode; smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_NOTIFICATION)) {
 		fprintf(file, "<event>\n");
 		fprintf(file, "\t<mask>\n");
 
@@ -132,7 +131,7 @@ int dumpXml(SmiModule* smiModule, FILE* file, EventDefaults* defs) {
 		fprintf(file, "\t<descr>\n&lt;p&gt;%s&lt;/p&gt;", smiNode->description);
 		fprintf(file, "&lt;table&gt;");
 
-		logmsg = (char *) malloc( 2000 * sizeof (char));
+		logmsg = (char *) malloc(2000 * sizeof (char));
 		if (!logmsg) {
 			perror("Cannot allocate memory");
 			return 0;
@@ -142,16 +141,15 @@ int dumpXml(SmiModule* smiModule, FILE* file, EventDefaults* defs) {
 			smiNode->name);
 
 		for (smiElem = smiGetFirstElement(smiNode), i=1;
-			smiElem;
-			smiElem = smiGetNextElement(smiElem), i++)
-		{
+		     smiElem;
+		     smiElem = smiGetNextElement(smiElem), i++) {
 			tmpNode = smiGetElementNode(smiElem);
 			fprintf(file, "\n\t&lt;tr&gt;&lt;td&gt;&lt;b&gt;\n\n\t%s&lt;/b&gt;&lt;/td&gt;", 
 				tmpNode->name);
 			fprintf(file, "&lt;td&gt;\n\t%%parm[#%d]%%;", i);
 			fprintf(file, "&lt;/td&gt;&lt;td&gt;&lt;p&gt;");
-			if (dumpNamed(tmpNode, file))		// Values actually printed ??
-				fprintf(file, "\t");				// yes - align text
+			if (dumpNamed(tmpNode, file)) // Values actually printed ??
+				fprintf(file, "\t"); // yes - align text
 			fprintf(file, "&lt;/p&gt;&lt;/td&gt;");
 			fprintf(file, "&lt;/tr&gt;");
 			sprintf(logmsg + strlen(logmsg), "\n\t\t\t%s=%%parm[#%d]%% ", 
@@ -175,16 +173,17 @@ int dumpXml(SmiModule* smiModule, FILE* file, EventDefaults* defs) {
 		fprintf(file, "</event>\n");
 	}
   
-	if (wrapevents) {
+	if (wrapevents)
 		fprintf(file, "</events>\n");
-	}
+
 	fprintf(file, "<!-- End of auto generated data from MIB: %s -->\n", 
 		smiModule->name);
 
 	return 1;
 }
 
-void usage() {
+void usage()
+{
 	fprintf(stderr, 
 		"Usage: mib2opennms [-v] [-f file] [-m MIBPATH] [-6] [-w] MIB1 [MIB2 [...]]\n"\
 		"       -6 - hardcode generic to 6\n"\
@@ -216,31 +215,30 @@ int main(int argc, char *argv[])
 
 	fprintf(stderr, "mib2opennms version %s\n", VERSION);
 
-	while ( (c = getopt(argc, argv, "m:f:v6w")) != -1 ) {
+	while ((c = getopt(argc, argv, "m:f:v6w")) != -1 ) {
 		switch (c) {
-			case 'm' :
-				mibpath = optarg;
-				break;
-			case 'f' :
-				filename = optarg;
-				break;
-			case 'v' :
-				verbosity++;
-				break;
-			case '6' :
-				generic6++;
-				break;
-			case 'w' :
-				wrapevents++;
-				break;
-			default :
-				usage();
+		case 'm' :
+			mibpath = optarg;
+			break;
+		case 'f' :
+			filename = optarg;
+			break;
+		case 'v' :
+			verbosity++;
+			break;
+		case '6' :
+			generic6++;
+			break;
+		case 'w' :
+			wrapevents++;
+			break;
+		default :
+			usage();
 		}
 	}
 
-	if (optind == argc) {
+	if (optind == argc)
 		usage();
-	}
     
 	smiInit(NULL);
 
@@ -248,7 +246,7 @@ int main(int argc, char *argv[])
 	/* Add enough space for null termination and colon */
 	pathlen += mibpath == NULL ? 1 : strlen(mibpath) + 2;
 
-	newpath = (char *) malloc( pathlen * sizeof(char) );
+	newpath = (char *) malloc(pathlen * sizeof(char));
 	if (!newpath) {
 		perror("Cannot allocate memory");
 		goto out;
@@ -259,29 +257,26 @@ int main(int argc, char *argv[])
 	  strcat(newpath, mibpath);
 	  strcat(newpath, ":");
 	}
-  
 	strcat(newpath, STANDARD_PATH);
 
 	smiSetPath(newpath);
 
-	modules = (SmiModule **) malloc( argc * sizeof(SmiModule *));
+	modules = (SmiModule **) malloc(argc * sizeof(SmiModule *));
 	if (!modules) {
 		perror("Cannot allocate memory");
 		goto out1;
 	}
 	moduleCount = 0;
 
-	while( optind < argc ) {
+	while (optind < argc) {
 		i = optind++;
 		verbose(4, "Loading MIB: %s\n", argv[i]);
 		modulename = smiLoadModule(argv[i]);
 		smiModule = modulename ? smiGetModule(modulename) : NULL;
-		if ( ! smiModule ) {
+		if (!smiModule) {
 			fprintf(stderr, "mib2opennms: cannot locate module `%s'\n",
 			argv[i]);
-		} 
-		else
-		{
+		} else {
 			if ((smiModule->conformance) && (smiModule->conformance < 3)) {
 				if (verbosity > 0) {
 					fprintf(stderr,
@@ -294,9 +289,9 @@ int main(int argc, char *argv[])
 		}
 	}      
 
-	if ( filename != NULL ) {
+	if (filename != NULL) {
 		file = fopen(filename, "w");
-		if ( file == NULL ) {
+		if (file == NULL) {
 			perror("Could not open file for writing");
 			goto out2;
 		}
@@ -310,7 +305,7 @@ int main(int argc, char *argv[])
 	defaults->ueiPrefix = "uei.opennms.org/mib2opennms/";
 	defaults->severity  = "Indeterminate";
 
-	for ( i = 0; i < moduleCount; i++ ) {
+	for (i = 0; i < moduleCount; i++) {
 		int dump_ret;
 
 		smiModule = modules[i];
@@ -326,7 +321,7 @@ out2:
 out1:
 	free(newpath);
 out:
-	if ( file != NULL || file != stdout )
+	if (file != NULL || file != stdout)
 		fclose(file);
 
 	smiExit();
