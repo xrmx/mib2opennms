@@ -188,7 +188,6 @@ void usage()
 		"       -6 - hardcode generic to 6\n"\
 		"       -w - wrap event in <events> tag\n"
 );
-	exit(1);
 }
 
 int main(int argc, char *argv[])
@@ -199,7 +198,7 @@ int main(int argc, char *argv[])
 	char *modulename;
 	char *newpath;
 
-	int i, c, moduleCount, pathlen;
+	int i, c, moduleCount, pathlen, display_usage;
 
 	EventDefaults *defaults;
 
@@ -208,9 +207,9 @@ int main(int argc, char *argv[])
 
 	FILE *file;
 
-
 	fprintf(stderr, "mib2opennms version %s\n", VERSION);
 
+	display_usage = 0;
 	while ((c = getopt(argc, argv, "m:f:v6w")) != -1 ) {
 		switch (c) {
 		case 'm':
@@ -229,13 +228,16 @@ int main(int argc, char *argv[])
 			wrapevents++;
 			break;
 		default:
-			usage();
+			display_usage = 1;
+			break;
 		}
 	}
 
-	if (optind == argc)
+	if (display_usage || optind == argc) {
 		usage();
-   
+		exit(1);
+	}
+
 	file = stdout; 
 	if (filename != NULL) {
 		file = fopen(filename, "w");
