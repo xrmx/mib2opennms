@@ -318,7 +318,7 @@ out2:
 out1:
 	free(newpath);
 out:
-	if (file != NULL || file != stdout)
+	if (file != stdout)
 		fclose(file);
 
 	smiExit();
