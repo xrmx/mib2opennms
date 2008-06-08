@@ -78,12 +78,12 @@ int dumpNamed(SmiNode *node, FILE *file)
 
 	smiType = smiGetNodeType(node);
 
-	for (smiNamedNumber = smiGetFirstNamedNumber(smiType);
-	     smiNamedNumber;
-	     smiNamedNumber = smiGetNextNamedNumber(smiNamedNumber)) {
+	smiNamedNumber = smiGetFirstNamedNumber(smiType);
+	while (smiNamedNumber) {
 		fprintf(file, "\n\t\t%s(%d)",
 			smiNamedNumber->name,
 			(int)smiNamedNumber->value.value.integer32);
+		smiNamedNumber = smiGetNextNamedNumber(smiNamedNumber);
 		output++;
 	}
 
@@ -100,12 +100,11 @@ int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 	char *logmsg;
 	int i;
 
-	smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_NOTIFICATION);
-
 	fprintf(file, "<!-- Start of auto generated data from MIB: %s -->\n", smiModule->name);
 	if (wrapevents)
 		fprintf(file, "<events>\n");
 
+	smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_NOTIFICATION);
 	for(; smiNode; smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_NOTIFICATION)) {
 		fprintf(file, "<event>\n");
 		fprintf(file, "\t<mask>\n");
