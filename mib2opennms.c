@@ -32,9 +32,9 @@ typedef struct EventDefaults {
 	char *severity;
 } EventDefaults;
 
-static int verbosity = 0;
-static int generic6 = 0;
-static int wrapevents = 0;
+static int verbosity;
+static int generic6;
+static int wrapevents;
 
 #define verbose(level, ...) \
 	if( (level) <= verbosity ) { \
