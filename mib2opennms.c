@@ -32,18 +32,21 @@ typedef struct EventDefaults {
 	char *severity;
 } EventDefaults;
 
-static int verbosity;
-static int generic6;
-static int wrapevents;
+typedef struct M2Opts {
+	int generic6;
+	int wrapevents;
+} M2Opts;
+
+int verbosity;
 
 #define verbose(level, ...) \
 	if ((level) <= verbosity) { \
 		fprintf(stdout, __VA_ARGS__); \
 	}
 
-static void dumpOid(SmiNode* node, FILE* file)
+static void dumpOid(SmiNode* node, FILE* file, int generic6)
 {
-	int j, len;
+	int j, len, generic;
 
 	len = node->oidlen - 2;
 
@@ -57,12 +60,9 @@ static void dumpOid(SmiNode* node, FILE* file)
 	fprintf(file, "\t\t<maskelement>\n");
 	fprintf(file, "\t\t\t<mename>generic</mename>\n");
 
-	if (generic6) {
-		fprintf(file, "\t\t\t<mevalue>6</mevalue>\n");
-		j++;
-	} else {
-		fprintf(file, "\t\t\t<mevalue>%d</mevalue>\n", node->oid[j++]);
-	}
+	generic = generic6 ? 6 : node->oid[j];
+	j++;
+	fprintf(file, "\t\t\t<mevalue>%d</mevalue>\n", generic);
 
 	fprintf(file, "\t\t</maskelement>\n");
 	fprintf(file, "\t\t<maskelement>\n");
@@ -94,7 +94,7 @@ static int dumpNamed(SmiNode *node, FILE *file)
 	return output;
 }
 
-static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
+static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs, M2Opts *opts)
 {
 	SmiNode *smiNode, *tmpNode;
 	SmiElement *smiElem;
@@ -102,7 +102,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 	int i;
 
 	fprintf(file, "<!-- Start of auto generated data from MIB: %s -->\n", smiModule->name);
-	if (wrapevents)
+	if (opts->wrapevents)
 		fprintf(file, "<events>\n");
 
 	smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_NOTIFICATION);
@@ -113,7 +113,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 		/*
 		* set the OID as mask element
 		*/
-		dumpOid(smiNode, file);
+		dumpOid(smiNode, file, opts->generic6);
 		fprintf(file, "\t</mask>\n");
 
 		/*
@@ -173,7 +173,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 		fprintf(file, "</event>\n");
 	}
   
-	if (wrapevents)
+	if (opts->wrapevents)
 		fprintf(file, "</events>\n");
 
 	fprintf(file, "<!-- End of auto generated data from MIB: %s -->\n", 
@@ -202,6 +202,7 @@ int main(int argc, char *argv[])
 	int i, c, moduleCount, pathlen, display_usage;
 
 	EventDefaults *defaults;
+	M2Opts opts = { 0, 0 };
 
 	SmiModule *smiModule;
 	SmiModule **modules;
@@ -223,10 +224,10 @@ int main(int argc, char *argv[])
 			verbosity++;
 			break;
 		case '6':
-			generic6++;
+			opts.generic6 = 1;
 			break;
 		case 'w':
-			wrapevents++;
+			opts.wrapevents = 1;
 			break;
 		default:
 			display_usage = 1;
@@ -310,7 +311,7 @@ int main(int argc, char *argv[])
 
 		smiModule = modules[i];
 		verbose(3, "Dumping %s to file\n", smiModule->name);
-		dump_ret = dumpXml(smiModule, file, defaults);
+		dump_ret = dumpXml(smiModule, file, defaults, &opts);
 		if (!dump_ret)
 			break;
 	}
