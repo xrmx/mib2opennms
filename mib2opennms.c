@@ -32,15 +32,15 @@ typedef struct EventDefaults {
 	char *severity;
 } EventDefaults;
 
-int verbosity = 0;
-int generic6 = 0;
-int wrapevents = 0;
+static int verbosity = 0;
+static int generic6 = 0;
+static int wrapevents = 0;
 
 #define verbose(level, ...) \
 	if( (level) <= verbosity ) { \
 		fprintf(stdout, __VA_ARGS__);}
 
-void dumpOid(SmiNode* node, FILE* file)
+static void dumpOid(SmiNode* node, FILE* file)
 {
 	int j, len;
 
@@ -70,7 +70,7 @@ void dumpOid(SmiNode* node, FILE* file)
 	fprintf(file, "\t\t</maskelement>\n");
 }
 
-int dumpNamed(SmiNode *node, FILE *file)
+static int dumpNamed(SmiNode *node, FILE *file)
 {
 	SmiNamedNumber *smiNamedNumber;
 	SmiType *smiType;
@@ -93,7 +93,7 @@ int dumpNamed(SmiNode *node, FILE *file)
 	return output;
 }
 
-int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
+static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 {
 	SmiNode *smiNode, *tmpNode;
 	SmiElement *smiElem;
@@ -181,7 +181,7 @@ int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 	return 1;
 }
 
-void usage()
+static void usage()
 {
 	fprintf(stderr, 
 		"Usage: mib2opennms [-v] [-f file] [-m MIBPATH] [-6] [-w] MIB1 [MIB2 [...]]\n"\
