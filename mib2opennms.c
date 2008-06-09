@@ -181,7 +181,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 	return 1;
 }
 
-static void usage()
+static void usage(void)
 {
 	fprintf(stderr, 
 		"Usage: mib2opennms [-v] [-f file] [-m MIBPATH] [-6] [-w] MIB1 [MIB2 [...]]\n"\
