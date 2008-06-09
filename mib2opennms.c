@@ -37,8 +37,9 @@ static int generic6;
 static int wrapevents;
 
 #define verbose(level, ...) \
-	if( (level) <= verbosity ) { \
-		fprintf(stdout, __VA_ARGS__);}
+	if ((level) <= verbosity) { \
+		fprintf(stdout, __VA_ARGS__); \
+	}
 
 static void dumpOid(SmiNode* node, FILE* file)
 {
@@ -261,8 +262,8 @@ int main(int argc, char *argv[])
 	newpath[0] = '\0';
 
 	if (mibpath != NULL) {
-	  strcat(newpath, mibpath);
-	  strcat(newpath, ":");
+		strcat(newpath, mibpath);
+		strcat(newpath, ":");
 	}
 	strcat(newpath, STANDARD_PATH);
 
