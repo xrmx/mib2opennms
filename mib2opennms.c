@@ -193,7 +193,7 @@ static void usage(void)
 
 int main(int argc, char *argv[])
 {
-	char *STANDARD_PATH = ".:/usr/share/snmp/mibs";
+	const char *STANDARD_PATH = ".:/usr/share/snmp/mibs";
 	char *filename = NULL;
 	char *mibpath = NULL;
 	char *modulename;
