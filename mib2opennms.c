@@ -286,12 +286,10 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "mib2opennms: cannot locate module `%s'\n",
 			argv[i]);
 		} else {
-			if ((smiModule->conformance) && (smiModule->conformance < 3)) {
-				if (verbosity > 0) {
-					fprintf(stderr,
-						"mib2opennms: '%s' contains errors, output may be flawed\n",
-						argv[i]);
-				}
+			if (verbosity && smiModule->conformance && (smiModule->conformance < 3)) {
+				fprintf(stderr,
+					"mib2opennms: '%s' contains errors, output may be flawed\n",
+					argv[i]);
 			}
 			modules[moduleCount++] = smiModule;
 			verbose(3, "MIB loaded: %s\n", modulename);
