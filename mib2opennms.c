@@ -132,7 +132,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs, M2Opts
 		fprintf(file, "\t<descr>\n&lt;p&gt;%s&lt;/p&gt;", smiNode->description);
 		fprintf(file, "&lt;table&gt;");
 
-		logmsg = (char *) malloc(2900000000 * sizeof (char));
+		logmsg = (char *) malloc(2000 * sizeof (char));
 		if (!logmsg)
 			return ENOMEM;
 
