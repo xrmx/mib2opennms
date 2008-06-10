@@ -21,6 +21,7 @@
  *
  * $Id$
  */
+#include <errno.h>
 #include <stdio.h>
 #include <smi.h>
 #include <unistd.h> 
@@ -131,11 +132,10 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs, M2Opts
 		fprintf(file, "\t<descr>\n&lt;p&gt;%s&lt;/p&gt;", smiNode->description);
 		fprintf(file, "&lt;table&gt;");
 
-		logmsg = (char *) malloc(2000 * sizeof (char));
-		if (!logmsg) {
-			perror("Cannot allocate memory");
-			return 0;
-		}
+		logmsg = (char *) malloc(2900000000 * sizeof (char));
+		if (!logmsg)
+			return ENOMEM;
+
 		logmsg[0]='\0';
 		sprintf(logmsg, "\t\t<logmsg dest='logndisplay'>&lt;p&gt;\n\t\t\t%s trap received ", 
 			smiNode->name);
@@ -179,7 +179,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs, M2Opts
 	fprintf(file, "<!-- End of auto generated data from MIB: %s -->\n", 
 		smiModule->name);
 
-	return 1;
+	return 0;
 }
 
 static void usage(void)
@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
 	char *newpath;
 
 	int i, c, moduleCount, pathlen, display_usage;
+	int err = 0;
 
 	EventDefaults *defaults;
 	M2Opts opts = { 0, 0 };
@@ -244,7 +245,7 @@ int main(int argc, char *argv[])
 	if (filename != NULL) {
 		file = fopen(filename, "w");
 		if (file == NULL) {
-			perror("Could not open file for writing");
+			fprintf(stderr, "Could not write file %s: %s\n", filename, strerror(errno));
 			exit(1);
 		}
 	}
@@ -257,7 +258,7 @@ int main(int argc, char *argv[])
 
 	newpath = (char *) malloc(pathlen * sizeof(char));
 	if (!newpath) {
-		perror("Cannot allocate memory");
+		err = errno;
 		goto out;
 	}
 	newpath[0] = '\0';
@@ -272,7 +273,7 @@ int main(int argc, char *argv[])
 
 	modules = (SmiModule **) malloc(argc * sizeof(SmiModule *));
 	if (!modules) {
-		perror("Cannot allocate memory");
+		err = errno;
 		goto out1;
 	}
 	moduleCount = 0;
@@ -298,19 +299,17 @@ int main(int argc, char *argv[])
 
 	defaults = (EventDefaults*) malloc(sizeof(struct EventDefaults));
 	if (!defaults) {
-		perror("Cannot allocate memory");
+		err = errno;
 		goto out2;
 	}
 	defaults->ueiPrefix = "uei.opennms.org/mib2opennms/";
 	defaults->severity  = "Indeterminate";
 
 	for (i = 0; i < moduleCount; i++) {
-		int dump_ret;
-
 		smiModule = modules[i];
 		verbose(3, "Dumping %s to file\n", smiModule->name);
-		dump_ret = dumpXml(smiModule, file, defaults, &opts);
-		if (!dump_ret)
+		err = dumpXml(smiModule, file, defaults, &opts);
+		if (err)
 			break;
 	}
 
@@ -324,6 +323,11 @@ out:
 		fclose(file);
 
 	smiExit();
+
+	if (err) {
+		fprintf(stderr, "Failed to create event file: %s\n", strerror(err));
+		exit(1);
+	}
 
 	exit(0);
 }
