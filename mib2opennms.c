@@ -33,11 +33,8 @@ typedef struct EventDefaults {
 	char *severity;
 } EventDefaults;
 
-typedef struct M2Opts {
-	int generic6;
-	int wrapevents;
-} M2Opts;
-
+int generic6;
+int wrapevents;
 int verbosity;
 
 #define verbose(level, ...) \
@@ -45,7 +42,7 @@ int verbosity;
 		fprintf(stdout, __VA_ARGS__); \
 	}
 
-static void dumpOid(SmiNode* node, FILE* file, int generic6)
+static void dumpOid(SmiNode* node, FILE* file)
 {
 	int j, len, generic;
 
@@ -95,7 +92,7 @@ static int dumpNamed(SmiNode *node, FILE *file)
 	return output;
 }
 
-static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs, M2Opts *opts)
+static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs)
 {
 	SmiNode *smiNode, *tmpNode;
 	SmiElement *smiElem;
@@ -103,7 +100,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs, M2Opts
 	int i;
 
 	fprintf(file, "<!-- Start of auto generated data from MIB: %s -->\n", smiModule->name);
-	if (opts->wrapevents)
+	if (wrapevents)
 		fprintf(file, "<events>\n");
 
 	smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_NOTIFICATION);
@@ -114,7 +111,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs, M2Opts
 		/*
 		* set the OID as mask element
 		*/
-		dumpOid(smiNode, file, opts->generic6);
+		dumpOid(smiNode, file);
 		fprintf(file, "\t</mask>\n");
 
 		/*
@@ -173,7 +170,7 @@ static int dumpXml(SmiModule *smiModule, FILE *file, EventDefaults *defs, M2Opts
 		fprintf(file, "</event>\n");
 	}
   
-	if (opts->wrapevents)
+	if (wrapevents)
 		fprintf(file, "</events>\n");
 
 	fprintf(file, "<!-- End of auto generated data from MIB: %s -->\n", 
@@ -203,7 +200,6 @@ int main(int argc, char *argv[])
 	int err = 0;
 
 	EventDefaults *defaults;
-	M2Opts opts = { 0, 0 };
 
 	SmiModule *smiModule;
 	SmiModule **modules;
@@ -225,10 +221,10 @@ int main(int argc, char *argv[])
 			verbosity++;
 			break;
 		case '6':
-			opts.generic6 = 1;
+			generic6 = 1;
 			break;
 		case 'w':
-			opts.wrapevents = 1;
+			wrapevents = 1;
 			break;
 		default:
 			display_usage = 1;
@@ -308,7 +304,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < moduleCount; i++) {
 		smiModule = modules[i];
 		verbose(3, "Dumping %s to file\n", smiModule->name);
-		err = dumpXml(smiModule, file, defaults, &opts);
+		err = dumpXml(smiModule, file, defaults);
 		if (err)
 			break;
 	}
